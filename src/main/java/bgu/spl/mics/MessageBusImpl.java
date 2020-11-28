@@ -20,7 +20,6 @@ public class MessageBusImpl implements MessageBus {
 
 	@Override @SuppressWarnings("unchecked")
 	public <T> void complete(Event<T> e, T result) {
-		
 	}
 
 	@Override
@@ -28,7 +27,6 @@ public class MessageBusImpl implements MessageBus {
 		
 	}
 
-	
 	@Override
 	public <T> Future<T> sendEvent(Event<T> e) {
 		
