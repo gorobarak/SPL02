@@ -7,9 +7,11 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 class EwokTest {
+    Ewok ewok;
 
     @BeforeEach
     void setUp() {
+        ewok = new Ewok();
     }
 
     @AfterEach
@@ -18,9 +20,11 @@ class EwokTest {
 
     @Test
     void acquire() {
+        assertFalse(ewok.getAvailability());
     }
 
     @Test
     void release() {
+        assertTrue(ewok.getAvailability());
     }
 }

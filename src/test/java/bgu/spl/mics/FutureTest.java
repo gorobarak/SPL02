@@ -29,4 +29,31 @@ public class FutureTest {
         assertTrue(future.isDone());
         assertTrue(str.equals(future.get()));
     }
+
+    @Test
+    public void testGet() {
+        String result = "someResult";
+        future.resolve(result);
+        assertTrue(result.equals(future.get()));
+    }
+
+    @Test
+    public void testIsDone() {
+        String result = "someResult";
+        assertFalse(future.isDone());
+        future.resolve(result);
+        assertTrue(future.isDone());
+    }
+
+    @Test
+    public void testGetTimeout() {
+        String result = "someResult";
+        long start = System.nanoTime();
+        assertNull(future.get(50, TimeUnit.NANOSECONDS));
+        long end = System.nanoTime();
+        assertTrue(end - start > 50);
+        future.resolve(result);
+        assertTrue(result.equals(future.get(1,TimeUnit.MILLISECONDS)));
+        System.currentTimeMillis();
+    }
 }

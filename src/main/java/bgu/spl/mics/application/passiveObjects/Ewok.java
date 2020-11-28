@@ -15,13 +15,28 @@ public class Ewok {
      * Acquires an Ewok
      */
     public void acquire() {
-		
+        available = false;
     }
 
     /**
      * release an Ewok
      */
     public void release() {
-    	
+        available = true;
+    }
+
+    /**
+     * @return the ewok's serial number
+     */
+    public int getSerialNumber() {
+        return serialNumber;
+    }
+
+    /**
+     *
+     * @return available member
+     */
+    public boolean getAvailability(){
+        return available;
     }
 }
