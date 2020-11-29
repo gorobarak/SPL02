@@ -54,6 +54,5 @@ public class FutureTest {
         assertTrue(end - start > 50);
         future.resolve(result);
         assertTrue(result.equals(future.get(1,TimeUnit.MILLISECONDS)));
-        System.currentTimeMillis();
     }
 }

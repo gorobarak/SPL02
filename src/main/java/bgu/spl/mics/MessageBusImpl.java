@@ -7,7 +7,12 @@ package bgu.spl.mics;
  */
 public class MessageBusImpl implements MessageBus {
 	
-	
+	private static MessageBus instance = null;
+
+	private MessageBusImpl(){
+
+	}
+
 	@Override
 	public <T> void subscribeEvent(Class<? extends Event<T>> type, MicroService m) {
 		
@@ -48,4 +53,13 @@ public class MessageBusImpl implements MessageBus {
 		
 		return null;
 	}
+
+	public static MessageBus getInstance() {
+		if (instance == null){
+			instance =  new MessageBusImpl();
+		}
+		return instance;
+	}
+
+
 }
