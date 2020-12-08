@@ -7,7 +7,7 @@ package bgu.spl.mics;
  */
 public class MessageBusImpl implements MessageBus {
 	
-	private static MessageBus instance = null;
+	private static MessageBusImpl instance = null;
 
 	private MessageBusImpl(){
 
@@ -54,7 +54,7 @@ public class MessageBusImpl implements MessageBus {
 		return null;
 	}
 
-	public static MessageBus getInstance() {
+	public static MessageBusImpl getInstance() {
 		if (instance == null){
 			instance =  new MessageBusImpl();
 		}
