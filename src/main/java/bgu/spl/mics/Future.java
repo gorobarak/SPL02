@@ -30,8 +30,8 @@ public class Future<T> {
      * @return return the result of type T if it is available, if not wait until it is available.
      * 	       
      */
-	public T get() {//TODO
-		while (result == null) {
+	public synchronized T get() {//TODO
+		while (!isDone()) {
 			try {
 				wait();
 			} catch (Exception e) { }
@@ -42,17 +42,16 @@ public class Future<T> {
 	/**
      * Resolves the result of this Future object.
      */
-	public void resolve (T result) {
+	public synchronized void resolve (T result) {
 		isDone = true;
 		this.result = result;
-		//TODO add notify all?
-		
+		notifyAll();
 	}
 	
 	/**
      * @return true if this object has been resolved, false otherwise
      */
-	public boolean isDone() {
+	public synchronized boolean isDone() {
 		return isDone;
 	}
 	
@@ -67,9 +66,12 @@ public class Future<T> {
      * 	       wait for {@code timeout} TimeUnits {@code unit}. If time has
      *         elapsed, return null.
      */
-	public T get(long timeout, TimeUnit unit) {
-		//TODO wait or sleep?
-        return null;
+	public synchronized T get(long timeout, TimeUnit unit) {
+		if (!isDone()) {
+			try {
+				wait(TimeUnit.MILLISECONDS.convert(timeout, unit));
+			} catch (Exception e) {}
+		}
+		return result;
 	}
-
 }
