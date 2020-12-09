@@ -2,7 +2,5 @@ package bgu.spl.mics.application.messages;
 
 import bgu.spl.mics.Broadcast;
 
-
-public class broadcastForTest implements Broadcast {
-
+public class CheckAttackStatusBroadcast  implements Broadcast {
 }

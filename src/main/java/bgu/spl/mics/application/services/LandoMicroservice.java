@@ -1,6 +1,7 @@
 package bgu.spl.mics.application.services;
 
 import bgu.spl.mics.MicroService;
+import bgu.spl.mics.application.messages.TerminateBroadcast;
 
 /**
  * LandoMicroservice
@@ -15,6 +16,7 @@ public class LandoMicroservice  extends MicroService {
 
     @Override
     protected void initialize() {
+        subscribeBroadcast(TerminateBroadcast.class,(terminateBroadcast) -> terminate());
        
     }
 }

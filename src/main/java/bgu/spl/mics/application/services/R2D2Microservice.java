@@ -1,6 +1,7 @@
 package bgu.spl.mics.application.services;
 
 import bgu.spl.mics.MicroService;
+import bgu.spl.mics.application.messages.TerminateBroadcast;
 
 /**
  * R2D2Microservices is in charge of the handling {@link DeactivationEvent}.
@@ -18,6 +19,6 @@ public class R2D2Microservice extends MicroService {
 
     @Override
     protected void initialize() {
-
+        subscribeBroadcast(TerminateBroadcast.class,(terminateBroadcast) -> terminate());
     }
 }
