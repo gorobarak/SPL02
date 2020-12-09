@@ -2,6 +2,7 @@ package bgu.spl.mics;
 
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingQueue;
 
 /**
@@ -13,11 +14,13 @@ public class MessageBusImpl implements MessageBus {
 	
 	private static MessageBusImpl instance = null;
 	private Map<Event<?>, Future<?>> futureMap;
-	private Map<MicroService, LinkedBlockingQueue<Message>> microserviceQ;
-	private Map<Class<? extends Message>, LinkedBlockingQueue<MicroService>> msgQ;
+	private Map<MicroService, LinkedBlockingQueue<Message>> microserviceToMsgQ; // map microservices to their msg queues
+	private Map<Class<? extends Message>, LinkedBlockingQueue<MicroService>> msgToMicroserviceQ; // map msg types to microservices
 
 	private MessageBusImpl(){
-
+		futureMap = new ConcurrentHashMap<>();
+		microserviceToMsgQ = new ConcurrentHashMap<>();
+		msgToMicroserviceQ = new ConcurrentHashMap<>();
 	}
 
 	@Override
@@ -31,8 +34,8 @@ public class MessageBusImpl implements MessageBus {
     }
 
     private void subscribeMessage(Class<? extends Message> type, MicroService m) {
-		msgQ.putIfAbsent(type, new LinkedBlockingQueue<>());
-		msgQ.get(type).add(m);
+		msgToMicroserviceQ.putIfAbsent(type, new LinkedBlockingQueue<>());
+		msgToMicroserviceQ.get(type).add(m);
 	}
 
 	@Override @SuppressWarnings("unchecked")
@@ -44,10 +47,10 @@ public class MessageBusImpl implements MessageBus {
 
 	@Override
 	public void sendBroadcast(Broadcast b) {
-		BlockingQueue<MicroService> q = msgQ.get(b.getClass());
+		BlockingQueue<MicroService> q = msgToMicroserviceQ.get(b.getClass());
 		if (q != null) {
 			for (MicroService m : q) {
-				microserviceQ.get(m).add(b);
+				microserviceToMsgQ.get(m).add(b);
 			}
 			//TODO notify all?
 		}
@@ -56,11 +59,11 @@ public class MessageBusImpl implements MessageBus {
 	@Override
 	public <T> Future<T> sendEvent(Event<T> e) {
 		Future<T> future = new Future<>();
-		BlockingQueue<MicroService> q = msgQ.get(e.getClass());
+		BlockingQueue<MicroService> q = msgToMicroserviceQ.get(e.getClass());
 		if (q != null) {
 			MicroService next = q.poll();
 			if (next != null) {
-				microserviceQ.get(next).add(e);
+				microserviceToMsgQ.get(next).add(e);
 				futureMap.put(e, future);
 				q.add(next); //return  to end of the queue
 				return future;
@@ -71,7 +74,7 @@ public class MessageBusImpl implements MessageBus {
 
 	@Override
 	public void register(MicroService m) {
-		microserviceQ.put(m, new LinkedBlockingQueue<>());
+		microserviceToMsgQ.put(m, new LinkedBlockingQueue<>());
 	}
 
 	@Override

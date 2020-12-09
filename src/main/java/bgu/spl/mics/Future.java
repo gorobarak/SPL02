@@ -34,7 +34,7 @@ public class Future<T> {
 		while (!isDone()) {
 			try {
 				wait();
-			} catch (Exception e) { }
+			} catch (InterruptedException e) { }
 		}
         return result;
 	}
@@ -70,7 +70,7 @@ public class Future<T> {
 		if (!isDone()) {
 			try {
 				wait(TimeUnit.MILLISECONDS.convert(timeout, unit));
-			} catch (Exception e) {}
+			} catch (InterruptedException e) {}
 		}
 		return result;
 	}
