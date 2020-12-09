@@ -11,18 +11,28 @@ public class Ewok {
 	boolean available;
 	
   
-    /**
+    public Ewok (int serialNumber){
+        this.serialNumber = serialNumber;
+        available = true;
+    }
+	/**
      * Acquires an Ewok
      */
-    public void acquire() {
+    public synchronized void acquire() { //blocking, waits if not available
+        while (!available){
+            try {
+                wait();
+            } catch (InterruptedException e){}
+        }
         available = false;
     }
 
     /**
      * release an Ewok
      */
-    public void release() {
+    public synchronized void release() {
         available = true;
+        this.notifyAll();
     }
 
     /**
