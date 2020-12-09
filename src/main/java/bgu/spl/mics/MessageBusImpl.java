@@ -1,6 +1,7 @@
 package bgu.spl.mics;
 
 import java.util.Map;
+import java.util.Queue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -15,12 +16,12 @@ public class MessageBusImpl implements MessageBus {
 	private static MessageBusImpl instance = null;
 	private Map<Event<?>, Future<?>> futureMap;
 	private Map<MicroService, LinkedBlockingQueue<Message>> microserviceToMsgQ; // map microservices to their msg queues
-	private Map<Class<? extends Message>, LinkedBlockingQueue<MicroService>> msgToMicroserviceQ; // map msg types to microservices
+	private Map<Class<? extends Message>, LinkedBlockingQueue<MicroService>> msgTypeToSubsQ; // map msg types to microservices
 
 	private MessageBusImpl(){
 		futureMap = new ConcurrentHashMap<>();
 		microserviceToMsgQ = new ConcurrentHashMap<>();
-		msgToMicroserviceQ = new ConcurrentHashMap<>();
+		msgTypeToSubsQ = new ConcurrentHashMap<>();
 	}
 
 	@Override
@@ -34,8 +35,8 @@ public class MessageBusImpl implements MessageBus {
     }
 
     private void subscribeMessage(Class<? extends Message> type, MicroService m) {
-		msgToMicroserviceQ.putIfAbsent(type, new LinkedBlockingQueue<>());
-		msgToMicroserviceQ.get(type).add(m);
+		msgTypeToSubsQ.putIfAbsent(type, new LinkedBlockingQueue<>());
+		msgTypeToSubsQ.get(type).add(m);
 	}
 
 	@Override @SuppressWarnings("unchecked")
@@ -47,7 +48,7 @@ public class MessageBusImpl implements MessageBus {
 
 	@Override
 	public void sendBroadcast(Broadcast b) {
-		BlockingQueue<MicroService> q = msgToMicroserviceQ.get(b.getClass());
+		BlockingQueue<MicroService> q = msgTypeToSubsQ.get(b.getClass());
 		if (q != null) {
 			for (MicroService m : q) {
 				microserviceToMsgQ.get(m).add(b);
@@ -59,7 +60,7 @@ public class MessageBusImpl implements MessageBus {
 	@Override
 	public <T> Future<T> sendEvent(Event<T> e) {
 		Future<T> future = new Future<>();
-		BlockingQueue<MicroService> q = msgToMicroserviceQ.get(e.getClass());
+		BlockingQueue<MicroService> q = msgTypeToSubsQ.get(e.getClass());
 		if (q != null) {
 			MicroService next = q.poll();
 			if (next != null) {
@@ -79,13 +80,23 @@ public class MessageBusImpl implements MessageBus {
 
 	@Override
 	public void unregister(MicroService m) {
-		
+		for (Map.Entry<Class<? extends Message>, LinkedBlockingQueue<MicroService>> e : msgTypeToSubsQ.entrySet()) {
+			e.getValue().remove(m); // go over all msg types and remove m from q
+		}
+		microserviceToMsgQ.remove(m); // delete m's queue
+		//TODO synchronized?
+		//TODO delete events from the q itself?
+		//TODO resolve events in his queue? mark them as done?
 	}
 
 	@Override
 	public Message awaitMessage(MicroService m) throws InterruptedException {
-		
-		return null;
+		LinkedBlockingQueue<Message> msgQ = microserviceToMsgQ.get(m);
+		if (msgQ == null){
+			throw new IllegalStateException("microservice wasn't registered");
+		}
+		return msgQ.take(); //waits for a message in case queue is empty
+
 	}
 
 	public static MessageBusImpl getInstance() {
