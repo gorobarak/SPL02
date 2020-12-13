@@ -13,7 +13,9 @@ import java.util.concurrent.LinkedBlockingQueue;
  */
 public class MessageBusImpl implements MessageBus {
 	
-	private static MessageBusImpl instance = null;
+	private static class instanceHolder {
+		private static MessageBusImpl instance = new MessageBusImpl();
+	} // will be initialized only when called getInstance()
 	private Map<Event<?>, Future<?>> futureMap;
 	private Map<MicroService, LinkedBlockingQueue<Message>> microserviceToMsgQ; // map microservices to their msg queues
 	private Map<Class<? extends Message>, LinkedBlockingQueue<MicroService>> msgTypeToSubsQ; // map msg types to microservices
@@ -100,10 +102,7 @@ public class MessageBusImpl implements MessageBus {
 	}
 
 	public static MessageBusImpl getInstance() {
-		if (instance == null){
-			instance =  new MessageBusImpl();
-		}
-		return instance;
+		return instanceHolder.instance;
 	}
 
 

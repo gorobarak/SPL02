@@ -34,7 +34,7 @@ public class Future<T> {
 		while (!isDone()) {
 			try {
 				wait();
-			} catch (InterruptedException e) { }
+			} catch (InterruptedException ignored) { }
 		}
         return result;
 	}

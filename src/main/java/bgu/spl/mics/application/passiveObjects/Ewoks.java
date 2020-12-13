@@ -15,7 +15,9 @@ import java.util.List;
  * You can add ONLY private methods and fields to this class.
  */
 public class Ewoks {
-    private static Ewoks instance = null;
+    private static class instanceHolder {
+        private static Ewoks instance = new Ewoks();
+    }
     private List<Ewok> ewoks;
 
 
@@ -40,9 +42,6 @@ public class Ewoks {
 
     }
     public static Ewoks getInstance() {
-        if ( instance == null){
-            instance = new Ewoks();
-        }
-        return instance;
+        return instanceHolder.instance;
     }
 }

@@ -1,12 +1,12 @@
 package bgu.spl.mics.application.services;
+import bgu.spl.mics.application.messages.CheckAttackStatusBroadcast;
 import bgu.spl.mics.application.messages.TerminateBroadcast;
 import bgu.spl.mics.application.passiveObjects.Attack;
 import bgu.spl.mics.application.messages.AttackEvent;
 
-import java.util.ArrayList;
-import java.util.List;
 
 import bgu.spl.mics.MicroService;
+import bgu.spl.mics.application.passiveObjects.Diary;
 
 /**
  * LeiaMicroservices Initialized with Attack objects, and sends them as  {@link AttackEvent}.
@@ -18,6 +18,7 @@ import bgu.spl.mics.MicroService;
  */
 public class LeiaMicroservice extends MicroService {
 	private Attack[] attacks;
+	private Diary diary = Diary.getInstance();
 	
     public LeiaMicroservice(Attack[] attacks) {
         super("Leia");
@@ -26,6 +27,12 @@ public class LeiaMicroservice extends MicroService {
 
     @Override
     protected void initialize() {
-        subscribeBroadcast(TerminateBroadcast.class,(terminateBroadcast) -> terminate());
+        subscribeBroadcast(TerminateBroadcast.class,(terminateBroadcast) -> {
+            diary.setLeiaTerminate(System.currentTimeMillis());
+            terminate();});
+        for (Attack att : attacks){
+            sendEvent(new AttackEvent(att));
+        } //ATTTTTACKKKK!!!
+        sendBroadcast(new CheckAttackStatusBroadcast()); //com'n are the attacks finished already??
     }
 }

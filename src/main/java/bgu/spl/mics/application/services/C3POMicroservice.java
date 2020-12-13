@@ -1,11 +1,9 @@
 package bgu.spl.mics.application.services;
 
-import bgu.spl.mics.MessageBus;
-import bgu.spl.mics.MessageBusImpl;
+import bgu.spl.mics.Future;
 import bgu.spl.mics.MicroService;
-import bgu.spl.mics.application.messages.AttackEvent;
-import bgu.spl.mics.application.messages.CheckAttackStatusBroadcast;
-import bgu.spl.mics.application.messages.TerminateBroadcast;
+import bgu.spl.mics.application.messages.*;
+import bgu.spl.mics.application.passiveObjects.Diary;
 import bgu.spl.mics.application.passiveObjects.Ewoks;
 
 import java.util.List;
@@ -25,14 +23,20 @@ import static java.lang.Thread.sleep;
  */
 public class C3POMicroservice extends MicroService {
 
+    private Object lock;
     private AtomicBoolean wasDeactivateSent;
     private AtomicInteger numOfAttacks;
     private AtomicInteger totalAttacks;
-    public C3POMicroservice(AtomicInteger numOfAttacks,AtomicBoolean wasDeactivateSent,AtomicInteger totalAttacks) {
+    private Diary diary = Diary.getInstance();
+    public C3POMicroservice() {
         super("C3PO");
+
+    }
+    public void init(AtomicInteger numOfAttacks,AtomicBoolean wasDeactivateSent,AtomicInteger totalAttacks, Object lock){
         this.numOfAttacks = numOfAttacks;
         this.wasDeactivateSent = wasDeactivateSent;
         this.totalAttacks = totalAttacks;
+        this.lock = lock;
     }
 
     @Override
@@ -48,9 +52,19 @@ public class C3POMicroservice extends MicroService {
             ewoks.release(serials);
             totalAttacks.incrementAndGet();
         });
-        subscribeBroadcast(TerminateBroadcast.class,(terminateBroadcast) -> terminate());
+        subscribeBroadcast(TerminateBroadcast.class,(terminateBroadcast) -> {
+            diary.setC3POTerminate(System.currentTimeMillis());
+            terminate();
+        });
         subscribeBroadcast(CheckAttackStatusBroadcast.class,(checkAttackStatusBroadcast)->{
-            if(totalAttacks.equals(numOfAttacks))
+            diary.setC3POFinish(System.currentTimeMillis());
+            synchronized (lock) {
+                if (totalAttacks.get() == numOfAttacks.get() && !wasDeactivateSent.get()) {
+                    Future<Boolean> future = sendEvent(new DeactivationEvent());
+                    future.get(); //blocking until R2D2 finishes deactivating the shield
+                    sendEvent(new BombDestroyerEvent());
+                }
+            }
         });
 
     }
