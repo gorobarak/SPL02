@@ -32,7 +32,7 @@ public class LeiaMicroservice extends MicroService {
             diary.setLeiaTerminate(System.currentTimeMillis());
             terminate();});
         try{
-            sleep(1000); //waiting for all other threads to register and subscribe.
+            sleep(400); //waiting for all other threads to register and subscribe.
         } catch(InterruptedException ignored){}
         for (Attack att : attacks){
             sendEvent(new AttackEvent(att));

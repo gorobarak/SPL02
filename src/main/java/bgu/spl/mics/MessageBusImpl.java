@@ -68,11 +68,11 @@ public class MessageBusImpl implements MessageBus {
 		LinkedBlockingQueue<MicroService> q = msgTypeToSubsQ.get(e.getClass());
 		if (q != null) {
 			synchronized (q) { //to ensure round robin when this dequeue a subscriber all other sendEvent must wait from this to finish
-				MicroService next = q.poll();
+				MicroService next = q.poll(); // the next microservice that should receive this kind of event
 				if (next != null) { //next == null means the q is empty. could happen when all subscribers called unregister.
 					try {
-						microserviceToMsgQ.get(next).put(e);
 						futureMap.put(e, future);
+						microserviceToMsgQ.get(next).put(e);
 						q.put(next); //return to end of the queue
 					} catch (InterruptedException ignored) { }
 					return future;
