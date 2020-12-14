@@ -19,11 +19,13 @@ import java.util.concurrent.atomic.AtomicInteger;
  * In the end, you should output a JSON.
  */
 public class Main {
-	public static void main(String[] args) {
-		//if (args.length <)//TODO
+	public static void main(String[] args) throws Exception {//TODO remove throws
+//		if (args.length < 2) {//TODO
+//			throw new Exception("asdfasdf");
+//		}
 		Gson gson = new Gson();
 		try{
-			JsonReader reader = new JsonReader(new FileReader(args[0]));
+			JsonReader reader = new JsonReader(new FileReader("input.json")); //change back to args[0]
 			Input input = gson.fromJson(reader,Input.class);
 
 			/**
@@ -33,11 +35,6 @@ public class Main {
 			R2D2Microservice r2d2 = new R2D2Microservice(input.getR2D2());
 			for (Attack att : input.getAttacks()){
 				Collections.sort(att.getSerials());
-//				att.getSerials().sort(new Comparator<Integer>() {
-//					public int compare(Integer o1, Integer o2) {
-//						return o1 - o2;
-//					}
-//				});
 			} //sort serials
 			LeiaMicroservice leia = new LeiaMicroservice(input.getAttacks());
 			AtomicInteger totalAttacks = new AtomicInteger(0);
@@ -82,10 +79,11 @@ public class Main {
 			r2d2Thread.join();
 			landoThread.join();
 
-			CreateOutput(args[1]);
+			CreateOutput("output.json"); //TODO change back to args[1]
 
 		} catch (IOException e){
 			System.out.println("illegal json");
+			e.printStackTrace();
 		}
 		catch (InterruptedException ignored){}
 	} //when constructing the services invoke init() also

@@ -2,11 +2,16 @@ package bgu.spl.mics;
 
 import bgu.spl.mics.application.messages.AttackEvent;
 import bgu.spl.mics.application.messages.broadcastForTest;
+import bgu.spl.mics.application.passiveObjects.Attack;
 import bgu.spl.mics.application.services.C3POMicroservice;
 import bgu.spl.mics.application.services.R2D2Microservice;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 
@@ -37,7 +42,7 @@ class MessageBusImplTest {
         MicroService m = new C3POMicroservice();
         mb.register(m);
         mb.subscribeEvent(AttackEvent.class, m);
-        AttackEvent e = new AttackEvent();
+        AttackEvent e = new AttackEvent(new Attack(new ArrayList<>(), 12));
         Future<Boolean> f = mb.sendEvent(e);
         mb.complete(e,true);
         try {
@@ -69,7 +74,7 @@ class MessageBusImplTest {
 
     @Test
     void sendEvent() {
-        AttackEvent e = new AttackEvent();
+        AttackEvent e = new AttackEvent(new Attack(new ArrayList<>(),14 ));
         MicroService m = new C3POMicroservice();
         //test that null is returned for an even with no subscribers
         assertNull(mb.sendEvent(e));
@@ -108,7 +113,7 @@ class MessageBusImplTest {
         }
         mb.register(m);
         mb.subscribeEvent(AttackEvent.class, m);
-        AttackEvent e = new AttackEvent();
+        AttackEvent e = new AttackEvent(new Attack(new ArrayList<>(),14 ));
         mb.sendEvent(e);
         try {
             assertEquals(e, mb.awaitMessage(m));

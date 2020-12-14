@@ -37,8 +37,10 @@ public class MessageBusImpl implements MessageBus {
     }
 
     private void subscribeMessage(Class<? extends Message> type, MicroService m) {
-		msgTypeToSubsQ.putIfAbsent(type, new LinkedBlockingQueue<>());
-		msgTypeToSubsQ.get(type).add(m);
+		msgTypeToSubsQ.putIfAbsent(type, new LinkedBlockingQueue<>()); //first subscription to this msg type
+		try {
+			msgTypeToSubsQ.get(type).put(m); //add microservice to msg type queue
+		} catch (InterruptedException ignored) {}
 	}
 
 	@Override @SuppressWarnings("unchecked")
@@ -51,25 +53,30 @@ public class MessageBusImpl implements MessageBus {
 	@Override
 	public void sendBroadcast(Broadcast b) {
 		BlockingQueue<MicroService> q = msgTypeToSubsQ.get(b.getClass());
-		if (q != null) {
+		if (q != null) { // q == null means no subscribers to this msg type
 			for (MicroService m : q) {
-				microserviceToMsgQ.get(m).add(b);
+				try {
+					microserviceToMsgQ.get(m).put(b);
+				} catch (InterruptedException ignored) {}
 			}
-			//TODO notify all?
 		}
 	}
 
 	@Override
 	public <T> Future<T> sendEvent(Event<T> e) {
 		Future<T> future = new Future<>();
-		BlockingQueue<MicroService> q = msgTypeToSubsQ.get(e.getClass());
+		LinkedBlockingQueue<MicroService> q = msgTypeToSubsQ.get(e.getClass());
 		if (q != null) {
-			MicroService next = q.poll();
-			if (next != null) {
-				microserviceToMsgQ.get(next).add(e);
-				futureMap.put(e, future);
-				q.add(next); //return  to end of the queue
-				return future;
+			synchronized (q) { //to ensure round robin when this dequeue a subscriber all other sendEvent must wait from this to finish
+				MicroService next = q.poll();
+				if (next != null) { //next == null means the q is empty. could happen when all subscribers called unregister.
+					try {
+						microserviceToMsgQ.get(next).put(e);
+						futureMap.put(e, future);
+						q.put(next); //return to end of the queue
+					} catch (InterruptedException ignored) { }
+					return future;
+				}
 			}
 		}
         return null;
@@ -77,18 +84,18 @@ public class MessageBusImpl implements MessageBus {
 
 	@Override
 	public void register(MicroService m) {
-		microserviceToMsgQ.put(m, new LinkedBlockingQueue<>());
+		microserviceToMsgQ.putIfAbsent(m, new LinkedBlockingQueue<>()); //ifAbsent - in case someone tries to register a microservice that is already registered
 	}
 
 	@Override
 	public void unregister(MicroService m) {
 		for (Map.Entry<Class<? extends Message>, LinkedBlockingQueue<MicroService>> e : msgTypeToSubsQ.entrySet()) {
-			e.getValue().remove(m); // go over all msg types and remove m from q
+			synchronized (e.getValue()){ //to prevent a situation in which the microservice gets re-inserted in sendEvent
+				e.getValue().remove(m); // go over all msg types and remove m from q (if exists)
+			}
 		}
 		microserviceToMsgQ.remove(m); // delete m's queue
-		//TODO synchronized?
-		//TODO delete events from the q itself?
-		//TODO resolve events in his queue? mark them as done?
+		//no need to handle remaining msgs in q
 	}
 
 	@Override
@@ -98,7 +105,6 @@ public class MessageBusImpl implements MessageBus {
 			throw new IllegalStateException("microservice wasn't registered");
 		}
 		return msgQ.take(); //waits for a message in case queue is empty
-
 	}
 
 	public static MessageBusImpl getInstance() {

@@ -11,18 +11,20 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class Diary {
 
+
+
     private static class instanceHolder {
         private static Diary instance = new Diary();
     }
-    AtomicInteger totalAttacks; //will be updated by HanSolo and C3PO only
-    long HanSoloFinish;
-    long C3POFinish;
-    long R2D2Deactivate;
-    long LeiaTerminate;
-    long HanSoloTerminate;
-    long C3POTerminate;
-    long R2D2Terminate;
-    long LandoTerminate;
+    private AtomicInteger totalAttacks; //will be updated by HanSolo and C3PO only
+    private long HanSoloFinish;
+    private long C3POFinish;
+    private long R2D2Deactivate;
+    private long LeiaTerminate;
+    private long HanSoloTerminate;
+    private long C3POTerminate;
+    private long R2D2Terminate;
+    private long LandoTerminate;
 
     private Diary(){
 
@@ -67,4 +69,48 @@ public class Diary {
         return instanceHolder.instance;
     }
 
+
+    //TODO delete following methods:
+    public long getC3POFinish() {
+        return C3POFinish;
+    }
+
+    public long getC3POTerminate() {
+        return C3POTerminate;
+    }
+
+    public long getHanSoloFinish() {
+        return HanSoloFinish;
+    }
+
+    public long getHanSoloTerminate() {
+        return HanSoloTerminate;
+    }
+
+    public long getLandoTerminate() {
+        return LandoTerminate;
+    }
+
+    public long getLeiaTerminate() {
+        return LeiaTerminate;
+    }
+
+    public long getR2D2Deactivate() {
+        return R2D2Deactivate;
+    }
+
+    public long getR2D2Terminate() {
+        return R2D2Terminate;
+    }
+
+    public AtomicInteger getNumberOfAttacks() {
+        return totalAttacks;
+    }
+
+    public void resetNumberAttacks() {
+        totalAttacks.compareAndSet(totalAttacks.get(), 0);
+    }
+
 }
+
+

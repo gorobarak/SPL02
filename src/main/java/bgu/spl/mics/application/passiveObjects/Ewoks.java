@@ -29,15 +29,14 @@ public class Ewoks {
              ewoks.add(new Ewok(i+1));
         }
     }
-    public void acquire (List<Integer> serials){ // TODO assume serials are sorted
-        //Arrays.sort(serials);
+    public void acquire (List<Integer> serials){ //assume serials are sorted
         for (int i = 0; i < serials.size() ; i++) { //acquire resources in order
-            ewoks.get(serials.get(i)).acquire(); //blocking
+            ewoks.get(serials.get(i) - 1).acquire(); //blocking
         }
     }
     public void release (List<Integer> serials){// assume serials are sorted
         for (int i = 0; i < serials.size(); i++) {
-            ewoks.get(serials.get(i)).release();
+            ewoks.get(serials.get(i) - 1).release();
         }
 
     }
