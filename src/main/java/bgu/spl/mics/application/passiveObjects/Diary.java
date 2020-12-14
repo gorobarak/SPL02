@@ -31,7 +31,7 @@ public class Diary {
     }
     public void initTotalAttacks(AtomicInteger totalAttacks) {
         this.totalAttacks = totalAttacks;
-    }//TODO should be called in main
+    }//should be called in main
 
     public void setHanSoloFinish(long hanSoloFinish) {
         HanSoloFinish = hanSoloFinish;

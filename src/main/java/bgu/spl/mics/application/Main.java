@@ -19,10 +19,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * In the end, you should output a JSON.
  */
 public class Main {
-	public static void main(String[] args) throws Exception {//TODO remove throws
-//		if (args.length < 2) {//TODO
-//			throw new Exception("asdfasdf");
-//		}
+	public static void main(String[] args) {
 		Gson gson = new Gson();
 		try{
 			JsonReader reader = new JsonReader(new FileReader("input.json")); //change back to args[0]

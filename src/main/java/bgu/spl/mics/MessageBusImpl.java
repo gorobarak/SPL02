@@ -47,7 +47,6 @@ public class MessageBusImpl implements MessageBus {
 	public <T> void complete(Event<T> e, T result) {
 		Future f = futureMap.get(e);
 		f.resolve(result);
-		//futureMap.get(e).resolve(result); TODO
 	}
 
 	@Override

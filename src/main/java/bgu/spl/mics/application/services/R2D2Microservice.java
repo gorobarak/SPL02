@@ -36,7 +36,6 @@ public class R2D2Microservice extends MicroService {
         subscribeEvent(DeactivationEvent.class,(deactivationEvent)->{
             try {
                 sleep(duration); //simulating deactivating the shield
-                //TODO check if millis
             }catch (InterruptedException ignored){}
             diary.setR2D2Deactivate(System.currentTimeMillis());
             complete(deactivationEvent,true); //tell my friend i'm finished

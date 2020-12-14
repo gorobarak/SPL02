@@ -151,7 +151,7 @@ public abstract class MicroService implements Runnable {
     }
 
     /**
-     * The entry point of the micro-service. TODO: you must complete this code
+     * The entry point of the micro-service.
      * otherwise you will end up in an infinite loop.
      */
     @Override
@@ -162,7 +162,7 @@ public abstract class MicroService implements Runnable {
     	    try {
                 Message msg = bus.awaitMessage(this);
                 Callback cb =  callbacksMap.get(msg.getClass());
-                cb.call(msg);//TODO  should be parametrized?
+                cb.call(msg);
             } catch (IllegalStateException e) {
                 System.out.println("Microservice is not registered");
             } catch (InterruptedException e) { }
