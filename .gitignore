@@ -2,3 +2,5 @@
 spl211.iml
 /target
 /assignment2
+*.json
+

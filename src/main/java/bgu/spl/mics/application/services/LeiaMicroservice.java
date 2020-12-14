@@ -7,6 +7,7 @@ import bgu.spl.mics.application.messages.AttackEvent;
 
 import bgu.spl.mics.MicroService;
 import bgu.spl.mics.application.passiveObjects.Diary;
+import static java.lang.Thread.sleep;
 
 /**
  * LeiaMicroservices Initialized with Attack objects, and sends them as  {@link AttackEvent}.
@@ -30,9 +31,12 @@ public class LeiaMicroservice extends MicroService {
         subscribeBroadcast(TerminateBroadcast.class,(terminateBroadcast) -> {
             diary.setLeiaTerminate(System.currentTimeMillis());
             terminate();});
+        try{
+            sleep(1000); //waiting for all other threads to register and subscribe.
+        } catch(InterruptedException ignored){}
         for (Attack att : attacks){
             sendEvent(new AttackEvent(att));
         } //ATTTTTACKKKK!!!
-        sendBroadcast(new CheckAttackStatusBroadcast()); //com'n are the attacks finished already??
+        sendBroadcast(new CheckAttackStatusBroadcast()); //c'mon are the attacks finished already??
     }
 }
