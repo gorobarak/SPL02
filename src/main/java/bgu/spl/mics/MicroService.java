@@ -20,7 +20,7 @@ import java.util.HashMap;
  * Only private fields and methods may be added to this class.
  * <p>
  */
-public abstract class MicroService implements Runnable { 
+public abstract class MicroService implements Runnable {
 
     private MessageBus bus;
     private String name;
