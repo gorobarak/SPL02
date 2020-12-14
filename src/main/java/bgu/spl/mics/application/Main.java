@@ -22,7 +22,7 @@ public class Main {
 	public static void main(String[] args) {
 		Gson gson = new Gson();
 		try{
-			JsonReader reader = new JsonReader(new FileReader("input.json")); //change back to args[0]
+			JsonReader reader = new JsonReader(new FileReader("input.json")); //TODO change back to args[0]
 			Input input = gson.fromJson(reader,Input.class);
 
 			/**
