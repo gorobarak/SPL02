@@ -70,7 +70,7 @@ public class Diary {
     }
 
 
-    //TODO delete following methods:
+
     public long getC3POFinish() {
         return C3POFinish;
     }

@@ -22,7 +22,7 @@ public class Main {
 	public static void main(String[] args) {
 		Gson gson = new Gson();
 		try{
-			JsonReader reader = new JsonReader(new FileReader("input.json")); //TODO change back to args[0]/"input.json"
+			JsonReader reader = new JsonReader(new FileReader(args[0]));
 			Input input = gson.fromJson(reader,Input.class);
 
 			/**
@@ -76,7 +76,7 @@ public class Main {
 			r2d2Thread.join();
 			landoThread.join();
 
-			CreateOutput("Output.json"); //TODO change back to args[1]/"output.json"
+			CreateOutput(args[1]);
 
 		} catch (IOException e){
 			System.out.println("illegal json");

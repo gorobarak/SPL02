@@ -49,9 +49,9 @@ public class FutureTest {
     public void testGetTimeout() {
         String result = "someResult";
         long start = System.nanoTime();
-        assertNull(future.get(50, TimeUnit.NANOSECONDS));
+        assertNull(future.get(60, TimeUnit.MILLISECONDS));
         long end = System.nanoTime();
-        assertTrue(end - start > 50);
+        assertTrue(end - start > 60);
         future.resolve(result);
         assertTrue(result.equals(future.get(1,TimeUnit.MILLISECONDS)));
     }

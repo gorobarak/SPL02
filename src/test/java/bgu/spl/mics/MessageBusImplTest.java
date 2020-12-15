@@ -42,21 +42,20 @@ class MessageBusImplTest {
         MicroService m = new C3POMicroservice();
         mb.register(m);
         mb.subscribeEvent(AttackEvent.class, m);
-        AttackEvent e = new AttackEvent(new Attack(new ArrayList<>(), 12));
+        AttackEvent e = new AttackEvent(new Attack(new ArrayList<>(), 141));
         Future<Boolean> f = mb.sendEvent(e);
         mb.complete(e,true);
         try {
             assertTrue(f.get());
         } catch (Exception any) {fail("");}
-        mb.register(m);//return mb to its initialized state
-
+        mb.unregister(m);//return mb to its initialized state
     }
 
     @Test
     void sendBroadcast() {//
         Broadcast b = new broadcastForTest();
         MicroService mc = new C3POMicroservice();
-        MicroService mr = new R2D2Microservice(41);
+        MicroService mr = new R2D2Microservice(141);
 
         mb.register(mc);
         mb.register(mr);
@@ -74,9 +73,9 @@ class MessageBusImplTest {
 
     @Test
     void sendEvent() {
-        AttackEvent e = new AttackEvent(new Attack(new ArrayList<>(),14 ));
+        AttackEvent e = new AttackEvent(new Attack(new ArrayList<>(),141));
         MicroService m = new C3POMicroservice();
-        //test that null is returned for an even with no subscribers
+        //test that null is returned for an event with no subscribers
         assertNull(mb.sendEvent(e));
 
 
@@ -113,7 +112,7 @@ class MessageBusImplTest {
         }
         mb.register(m);
         mb.subscribeEvent(AttackEvent.class, m);
-        AttackEvent e = new AttackEvent(new Attack(new ArrayList<>(),14 ));
+        AttackEvent e = new AttackEvent(new Attack(new ArrayList<>(),141 ));
         mb.sendEvent(e);
         try {
             assertEquals(e, mb.awaitMessage(m));
